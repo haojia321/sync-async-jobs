@@ -5,12 +5,12 @@
 export const name = 'sync-async-jobs';
 export const Jobs = {};
 let jobInfoMap = {};
-BackgroundJob = new Mongo.Collection('_BackgroundJob');
-
+_BackgroundJob = new Mongo.Collection('_BackgroundJob');
+export const BackgroundJob = _BackgroundJob;
 Jobs.init = function(config) {
     let maxJobCount = 5;
     Meteor.setInterval(() => {
-        let runningJobs = BackgroundJob.find({ status: 'started' }).fetch();
+        let runningJobs = _BackgroundJob.find({ status: 'started' }).fetch();
         let runningJobsCount = runningJobs.length;
         console.log('A runningJobsCount: ', runningJobsCount);
         for (let i = runningJobsCount; i < maxJobCount; i++) {
@@ -29,7 +29,7 @@ Jobs.register = function(name, jobFunction, customJobCompletedPoint) {
 };
 
 Jobs.run = function(obj) {
-    BackgroundJob.insert({
+    _BackgroundJob.insert({
         type: obj.type,
         priority: obj.priority,
         status: 'not_started',
@@ -39,7 +39,7 @@ Jobs.run = function(obj) {
 };
 
 Jobs.markJobFinished = function(jobId) {
-    BackgroundJob.update({
+    _BackgroundJob.update({
         _id: jobId
     }, {
         $set: {
@@ -49,7 +49,7 @@ Jobs.markJobFinished = function(jobId) {
 };
 
 function pickJob() {
-    const job = BackgroundJob.find({
+    const job = _BackgroundJob.find({
         status: 'not_started'
     }, {
         sort: {
@@ -59,7 +59,7 @@ function pickJob() {
     }).fetch()[0];
     if (job) {
         console.log('created job: ', job._id);
-        BackgroundJob.update({
+        _BackgroundJob.update({
             _id: job._id
         }, {
             $set: {
@@ -71,7 +71,7 @@ function pickJob() {
         _arguments.push(job._id);
         func.apply(null, _arguments);
         if (!jobInfoMap[job.type].customJobCompletedPoint) {
-            BackgroundJob.update({
+            _BackgroundJob.update({
                 _id: job._id
             }, {
                 $set: {
