@@ -1,0 +1,1 @@
+_BackgroundJob = new Mongo.Collection('_BackgroundJob');
