@@ -1,6 +1,7 @@
 if (Meteor.isServer) {
     JobManager = { 'CONSTANT': constant };
     let jobInfoMap = {};
+
     JobManager.init = function(config) {
         let maxJobCount = 5;
         Meteor.setInterval(() => {
@@ -42,36 +43,48 @@ if (Meteor.isServer) {
     };
 
     function pickJob() {
-        const job = _BackgroundJob.find({
-            status: constant['STATUS_NOT_STARTED']
-        }, {
-            sort: {
-                'created': 1
-            },
-            limit: 1
-        }).fetch()[0];
-        if (job) {
-            console.log('created job: ', job._id);
-            _BackgroundJob.update({
-                _id: job._id
+        let job;
+        try {
+            job = _BackgroundJob.find({
+                status: constant['STATUS_NOT_STARTED']
             }, {
-                $set: {
-                    'status': constant['STATUS_STARTED']
-                }
-            });
-            var func = jobInfoMap[job.type].jobFunction;
-            var _arguments = job.arguments;
-            _arguments.push(job._id);
-            func.apply(null, _arguments);
-            if (!jobInfoMap[job.type].customJobCompletedPoint) {
+                sort: {
+                    'created': 1
+                },
+                limit: 1
+            }).fetch()[0];
+            if (job) {
+                console.log('created job: ', job._id);
                 _BackgroundJob.update({
                     _id: job._id
                 }, {
                     $set: {
-                        status: constant['STATUS_SUCCESS']
+                        'status': constant['STATUS_STARTED']
                     }
                 });
+                var func = jobInfoMap[job.type].jobFunction;
+                var _arguments = job.arguments;
+                _arguments.push(job._id);
+                func.apply(null, _arguments);
+                if (!jobInfoMap[job.type].customJobCompletedPoint) {
+                    _BackgroundJob.update({
+                        _id: job._id
+                    }, {
+                        $set: {
+                            status: constant['STATUS_SUCCESS']
+                        }
+                    });
+                }
             }
+        } catch (err) {
+            console.error(err);
+            _BackgroundJob.update({
+                _id: job._id
+            }, {
+                $set: {
+                    status: constant['STATUS_FAILURE']
+                }
+            });
         }
     }
 }
