@@ -1,5 +1,5 @@
 if (Meteor.isServer) {
-    JobManager = { 'CONSTANT': constant };
+    JobManager = {};
     let jobInfoMap = {};
 
     JobManager.init = function(config) {

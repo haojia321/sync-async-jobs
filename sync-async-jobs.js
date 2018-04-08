@@ -5,3 +5,4 @@
 export const name = 'sync-async-jobs';
 export const BackgroundJob = _BackgroundJob;
 export const Jobs = JobManager;
+export const Constant = constant;
