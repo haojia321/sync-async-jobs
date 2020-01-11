@@ -1,6 +1,6 @@
 Package.describe({
     name: 'haojia321:sync-async-jobs',
-    version: '0.0.9',
+    version: '0.0.10',
     // Brief, one-line summary of the package.
     summary: 'placeholder',
     // URL to the Git repository containing the source code for this package.
@@ -11,9 +11,9 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-    api.versionsFrom('1.6.1');
-    api.use('ecmascript');
-    api.use('mongo');
+    //api.versionsFrom('1.6.1');
+    //api.use('ecmascript');
+    //api.use('mongo');
     var files = [
         'collection/BackgroundJob.js',
         'constant.js',
